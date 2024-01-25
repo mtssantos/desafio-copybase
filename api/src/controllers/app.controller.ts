@@ -30,20 +30,20 @@ export class AppController {
 
       const data = this.appService.processWorksheet(file.buffer);
 
-      const clientsMonthly = this.appService.separatePlanType(data, 30);
-      const clientsYears = this.appService.separatePlanType(data, 365);
+      const monthlyPlan = this.appService.separatePlanType(data, "30");
+      const yearlyPlan = this.appService.separatePlanType(data, "365") || this.appService.separatePlanType(data, "360");
 
-      const clientActivesMonthly = clientsMonthly.filter((client) => client.status === 'Ativa');
-      const clientCanceledMonthly = clientsMonthly.filter((client) => client.status === 'Cancelada');
+      const monthlyPlanActivesClients = monthlyPlan.filter((client) => client.status === 'Ativa');
+      const monthlyPlanCanceledClients = monthlyPlan.filter((client) => client.status === 'Cancelada');
 
-      const clientActiveYears = clientsYears.filter((client) => client.status === 'Ativa');
-      const clientCanceledYears = clientsYears.filter((client) => client.status === 'Cancelada');
+      const yearlyPlanActivesClients = yearlyPlan.filter((client) => client.status === 'Ativa');
+      const yearlyPlanCanceledClients = yearlyPlan.filter((client) => client.status === 'Cancelada');
 
-      const mrrClientActivesMonthly = this.appService.calcMRRMonthly(clientActivesMonthly);
-      const mrrClientCanceledMonthly = this.appService.calcMRRMonthly(clientCanceledMonthly);
+      const mrrClientActivesMonthly = this.appService.calcMRRMonthly(monthlyPlanActivesClients);
+      const mrrClientCanceledMonthly = this.appService.calcMRRMonthly(monthlyPlanCanceledClients);
       
-      // const mrrClientActivesYear = this.appService.calcMRR(clientActiveYears);
-      // const mrrClientCanceledYear = this.appService.calcMRR(clientCanceledYears);
+      const mrrClientActivesYear = this.appService.calcMRR(yearlyPlanActivesClients);
+      const mrrClientCanceledYear = this.appService.calcMRR(yearlyPlanCanceledClients);
 
       // const countActives = this.appService.countStatus(data, 'Ativa');
       // const countCanceled = this.appService.countStatus(data, 'Cancelada');
@@ -51,13 +51,17 @@ export class AppController {
       // const churnRateMonthly = this.appService.calcChurnRate(clientCanceledMonthly, clientActivesMonthly);
       // const churnRateYear = this.appService.calcChurnRate(clientCanceledYears, clientActiveYears);
 
-
       return{
         file: tempFilePath,
         results: {
           mrr:{
             monthly: {
-              clientsMonthly
+              mrrClientActivesMonthly,
+              mrrClientCanceledMonthly
+            },
+            yearly: {
+              mrrClientActivesYear,
+              mrrClientCanceledYear
             }
           },
         

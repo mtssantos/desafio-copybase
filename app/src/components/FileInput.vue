@@ -14,6 +14,7 @@
   
 <script>
 import ProgressBar from "./ProgressBar.vue";
+import axios from "axios";
 
 export default {
   data() {
@@ -34,11 +35,18 @@ export default {
       if (selectedFile && this.isExcelFile(selectedFile.name)) {
         this.selectedFileName = selectedFile.name;
 
-        this.$refs.progressBar.startProgressBar();
-        setTimeout(() => {
-          this.$router.push({ path: '/details' });
-          this.isVisible = false;
-        }, 6000);
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        console.log(formData);
+
+        axios.post("http://localhost:3000/upload", formData).then(() => {
+            this.$refs.progressBar.startProgressBar();
+            this.$router.push({ path: '/details' });
+            this.isVisible = false;
+        }).catch((error) => {
+          console.error("Erro no upload do arquivo: ", error);
+        });
       } else {
         this.selectedFileName = null;
         this.$refs.fileInput.value = null;
